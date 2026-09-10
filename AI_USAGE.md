@@ -1,6 +1,6 @@
 # AI Usage Log
 
-> Keep this as a running log through the week — append entries the day something happens, not from memory on Day 7. See `../doc/plans/week-1/plan.md` ("AI usage habit").
+> Keep this as a running log through the week — append entries the day something happens, not from memory on Day 7. See `doc/plans/week-1/plan.md` ("AI usage habit").
 
 Minimum bar by Day 7 (assignment §7):
 1. Which AI tools were used

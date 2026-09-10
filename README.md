@@ -2,7 +2,7 @@
 
 A full-stack developer community: auth, posts, comments/replies, reactions, developer profiles, and a ranked feed.
 
-Built for a 7-day agentic-engineering internship assignment. Day-by-day requirements and plans live outside this repo, in `../doc/`.
+Built for a 7-day agentic-engineering internship assignment. Day-by-day requirements and plans live in `doc/` (gitignored — planning material, not part of this submission).
 
 ## Stack
 
