@@ -2,13 +2,36 @@
 
 A full-stack developer community: auth, posts, comments/replies, reactions, developer profiles, and a ranked feed.
 
-Built for a 7-day agentic-engineering internship assignment. Day-by-day requirements and plans live in `doc/` (gitignored — planning material, not part of this submission).
+Built for a 7-day agentic-engineering internship assignment (one day of features per day). Day-by-day requirements and plans live in `doc/` locally (gitignored — planning material, not part of this submission).
+
+## Status
+
+| Day | Feature | Status |
+| :---- | :---- | :---- |
+| 1 | Scaffold + health check (FE ↔ BE ↔ DB) | ✅ done |
+| 2 | Auth (signup/login, JWT, roles) | ⏳ not started |
+| 3 | Developer profiles (skills, experiences) | ⏳ not started |
+| 4 | Posts (create/list/detail) | ⏳ not started |
+| 5 | Comments and replies | ⏳ not started |
+| 6 | Reactions (like/dislike) | ⏳ not started |
+| 7 | Ranking, Swagger, polish | ⏳ not started |
 
 ## Stack
 
 - **Backend:** NestJS + MongoDB (Mongoose)
 - **Frontend:** Next.js (App Router)
 - **Auth:** JWT (access tokens), roles `admin` | `user`
+
+## Project structure
+
+```
+backend/    # NestJS API
+  src/
+    health/  # GET /health — API + DB connectivity check
+frontend/   # Next.js app
+  app/
+    page.tsx # home page, calls /health and shows connection status
+```
 
 ## Setup
 
@@ -55,8 +78,12 @@ Runs on `http://localhost:3000`. The home page calls the backend's `/health` end
 
 ## Ranking formula
 
-TODO (Day 7): document the implemented formula here once ranking ships.
+Not implemented yet — lands on Day 7. Planned: `score = (likes - dislikes) + commentCount * 2`, tie-break `createdAt` descending (see `doc/specs/week-1/spec.md`).
 
 ## API docs
 
-TODO (Day 7): Swagger URL path once wired up.
+Not wired up yet — Swagger lands on Day 7. This section will list the `/api/docs` URL once it's live.
+
+## AI usage
+
+See `AI_USAGE.md` for the running log of AI-assisted work, what was reviewed, and bugs caught.
