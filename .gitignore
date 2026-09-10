@@ -1,0 +1,22 @@
+# dependencies
+node_modules/
+
+# env files (never commit real secrets)
+.env
+.env.local
+.env.*.local
+
+# backend build output
+backend/dist/
+backend/*.tsbuildinfo
+
+# frontend build output
+frontend/.next/
+frontend/out/
+frontend/next-env.d.ts
+frontend/*.tsbuildinfo
+
+# misc
+.DS_Store
+*.log
+coverage/
