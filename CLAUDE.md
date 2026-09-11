@@ -9,8 +9,25 @@ Requirements and day-by-day execution steps live in `doc/`, not inside `backend/
 - `doc/specs/week-1/day-N/spec.md` — what Day N requires
 - `doc/plans/week-1/plan.md` — week execution approach
 - `doc/plans/week-1/day-N/plan.md` — concrete steps for Day N
+- `doc/specs/design-system.md` — frontend visual design (layout + color palette), applies Day 4 onward
 
 Read the relevant day's spec + plan before implementing it.
+
+## Frontend visual design
+
+Reddit-inspired layout: top navbar, left nav rail, center feed of vote-arrow post cards, threaded comments on post detail. Full detail and rationale in `doc/specs/design-system.md`.
+
+Color palette — use these as Tailwind theme tokens (`primary`, `positive`, `negative`, `negative-soft`, `tint`), not raw hex scattered through components:
+
+| Hex | Role |
+| :---- | :---- |
+| `#385a7c` | Primary — navbar, primary buttons, links |
+| `#f97171` | Negative accent — dislike/downvote active, destructive actions |
+| `#f99192` | Negative accent hover/muted |
+| `#8ad6cc` | Positive accent — like/upvote active |
+| `#b2eee6` | Tint — card hover, subtle surfaces, badges |
+
+Fill in neutrals (text/borders/page background) from Tailwind's default gray scale — these five are accents, not a full palette.
 
 ## Mandatory tech stack — strict, no substitutions
 
