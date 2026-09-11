@@ -15,19 +15,20 @@ Read the relevant day's spec + plan before implementing it.
 
 ## Frontend visual design
 
-Reddit-inspired layout: top navbar, left nav rail, center feed of vote-arrow post cards, threaded comments on post detail. Full detail and rationale in `doc/specs/design-system.md`.
+Reddit-inspired layout: top navbar, left nav rail, center feed of vote-arrow post cards, threaded comments on post detail. **Concrete visual reference chosen 2026-09-11:** `https://sixsense-devplatform-client.onrender.com/` (a prior implementation of this same brief — its frontend visuals are the reference, its stack is not; see the "prior attempt" note below). Applied starting Day 2 (navbar, left rail, auth pages), not just Day 4+. Full detail, exact palette, and per-day rollout in `doc/specs/design-system.md` — read that before touching any frontend styling.
 
-Color palette — use these as Tailwind theme tokens (`primary`, `positive`, `negative`, `negative-soft`, `tint`), not raw hex scattered through components:
+Color palette — Tailwind v4 `@theme` tokens in `frontend/app/globals.css`, using the reference site's own token names (`brand-*`, `chrome-*`, `like`, `dislike`) rather than a separate semantic scheme:
 
-| Hex | Role |
-| :---- | :---- |
-| `#385a7c` | Primary — navbar, primary buttons, links |
-| `#f97171` | Negative accent — dislike/downvote active, destructive actions |
-| `#f99192` | Negative accent hover/muted |
-| `#8ad6cc` | Positive accent — like/upvote active |
-| `#b2eee6` | Tint — card hover, subtle surfaces, badges |
+| Token | Hex | Role |
+| :---- | :---- | :---- |
+| `brand-500` | `#008080` | Primary — navbar accents, links, buttons, logo |
+| `brand-600` | `#006666` | Primary hover/pressed |
+| `brand-50` / `brand-100` | `#eaf5f5` / `#b2d8d8` | Light tints — auth-page bg, active-nav bg, badges |
+| `chrome-0` … `chrome-900` | `#fff` … `#141918` | Full neutral scale (bg/borders/text) — see design-system.md for all steps |
+| `like` | `#ff4500` | Like/upvote (heart icon) — orange-red, not green |
+| `dislike` | `#006666` | Dislike/downvote (thumbs-down icon) — same as `brand-600` |
 
-Fill in neutrals (text/borders/page background) from Tailwind's default gray scale — these five are accents, not a full palette.
+This superseded an earlier placeholder palette (`#385a7c`/`#f97171`/`#8ad6cc`/etc.) — don't reuse those hex values, they're no longer in the app.
 
 ## Mandatory tech stack — strict, no substitutions
 
