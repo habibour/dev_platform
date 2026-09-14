@@ -1,3 +1,21 @@
+export type Experience = {
+  id: string;
+  title: string;
+  company: string;
+  from: string;
+  to?: string;
+  description?: string;
+};
+
+export type Profile = {
+  id: string;
+  name: string;
+  email: string;
+  role: "admin" | "user";
+  skills: string[];
+  experiences: Experience[];
+};
+
 export class ApiError extends Error {
   statusCode: number;
   errors: unknown[];

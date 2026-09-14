@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { House, LayoutDashboard } from "lucide-react";
+import { House, LayoutDashboard, User } from "lucide-react";
 import { useAuth } from "@/lib/auth-context";
 
 const baseLinks = [{ href: "/", label: "Home", icon: House }];
@@ -11,7 +11,11 @@ export function LeftNavRail() {
   const pathname = usePathname();
   const { user } = useAuth();
   const items = user
-    ? [...baseLinks, { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard }]
+    ? [
+        ...baseLinks,
+        { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
+        { href: `/profile/${user.id}`, label: "Profile", icon: User },
+      ]
     : baseLinks;
 
   return (
