@@ -5,6 +5,7 @@ import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { AppModule } from './app.module.js';
 import { HttpExceptionFilter } from './common/filters/http-exception.filter.js';
 import { TransformInterceptor } from './common/interceptors/transform.interceptor.js';
+import { flattenValidationErrors } from './common/validation/flatten-validation-errors.js';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
@@ -17,10 +18,7 @@ async function bootstrap() {
       exceptionFactory: (errors: ValidationError[]) =>
         new BadRequestException({
           message: 'Validation failed',
-          errors: errors.map((error) => ({
-            field: error.property,
-            constraints: error.constraints,
-          })),
+          errors: flattenValidationErrors(errors),
         }),
     }),
   );
@@ -31,6 +29,7 @@ async function bootstrap() {
     .setTitle('Dev Community API')
     .setDescription('Success envelope: { success, data, message }. Error envelope: { success, statusCode, message, errors }.')
     .setVersion('1.0')
+    .addBearerAuth()
     .build();
   const swaggerDocument = SwaggerModule.createDocument(app, swaggerConfig);
   SwaggerModule.setup('api/docs', app, swaggerDocument);

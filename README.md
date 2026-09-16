@@ -10,7 +10,7 @@ Built for a 7-day agentic-engineering internship assignment (one day of features
 | :---- | :---- | :---- |
 | 1 | Scaffold + health check (FE ↔ BE ↔ DB) | ✅ done |
 | 2 | Auth (signup/login, JWT, roles) | ✅ done |
-| 3 | Developer profiles (skills, experiences) | ⏳ not started |
+| 3 | Developer profiles (skills, experiences) | ✅ done |
 | 4 | Posts (create/list/detail) | ⏳ not started |
 | 5 | Comments and replies | ⏳ not started |
 | 6 | Reactions (like/dislike) | ⏳ not started |
@@ -134,6 +134,17 @@ No Redis: this week's stack is Nest/Next/Mongo only, and Day 2 only needs plain 
 ## Ranking formula
 
 Not implemented yet — lands on Day 7. Planned: `score = (likes - dislikes) + commentCount * 2`, tie-break `createdAt` descending.
+
+## Developer profile model
+
+`User` fields: `name, email, role, headline?, bio?, skills: string[], portfolioProjects: PortfolioProject[]`, plus a deprecated `experiences: Experience[]` kept for backward compatibility. `PortfolioProject`: `title, description?, urls: string[], technologies: string[], startDate, endDate?, isCurrent`.
+
+Design decisions:
+- `experiences`/`Experience` (and their `POST/PATCH/DELETE /profile/:id/experiences...` routes) are **deprecated, not deleted** — new work should target `portfolioProjects` instead.
+- `GET /profile/:id` stays public/unauthenticated but returns only `{id, name, headline, bio, skills, portfolioProjects}` — never `email`, `role`, `experiences`, or the password hash. `GET /profile/me` (authenticated) returns the caller's full document.
+- `portfolioProjects` is mutated only via `POST/PATCH/DELETE /profile/me/portfolio-projects[/:projectId]`, mirroring the existing skills pattern. `PATCH /profile/me` accepts only `name`/`headline`/`bio`/`skills` — it does not accept `portfolioProjects`, to avoid an accidental whole-array overwrite.
+- Length caps: `headline` 120 chars, `bio`/project `description` 2000 chars, project `title` 120 chars.
+- Known limitation: on a partial `PATCH .../portfolio-projects/:id`, the "`endDate` required unless `isCurrent`" rule only fires when `isCurrent` is included in that same request body — it does not check against the project's already-stored `isCurrent` value. A DB-aware async validator would be needed to close that gap; considered disproportionate for the current scope.
 
 ## API docs
 

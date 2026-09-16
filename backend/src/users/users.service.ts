@@ -2,7 +2,9 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import type { Model } from 'mongoose';
 import type { AddExperienceDto } from './dto/add-experience.dto.js';
+import type { AddPortfolioProjectDto } from './dto/add-portfolio-project.dto.js';
 import type { UpdateExperienceDto } from './dto/update-experience.dto.js';
+import type { UpdatePortfolioProjectDto } from './dto/update-portfolio-project.dto.js';
 import type { UpdateProfileDto } from './dto/update-profile.dto.js';
 import { User } from './schemas/user.schema.js';
 import type { UserDocument, UserRole } from './schemas/user.schema.js';
@@ -32,6 +34,13 @@ export class UsersService {
 
   async getProfile(id: string) {
     return this.orNotFound(await this.userModel.findById(id).exec());
+  }
+
+  async getPublicProfile(id: string) {
+    const user = this.orNotFound(await this.userModel.findById(id).exec());
+    const { id: userId, name, headline, bio, skills, portfolioProjects } =
+      user.toJSON() as unknown as Record<string, unknown>;
+    return { id: userId, name, headline, bio, skills, portfolioProjects };
   }
 
   async updateProfile(id: string, dto: UpdateProfileDto) {
@@ -78,9 +87,39 @@ export class UsersService {
     );
   }
 
+  async addPortfolioProject(id: string, dto: AddPortfolioProjectDto) {
+    return this.orNotFound(
+      await this.userModel
+        .findByIdAndUpdate(id, { $push: { portfolioProjects: dto } }, { new: true })
+        .exec(),
+    );
+  }
+
+  async updatePortfolioProject(id: string, projectId: string, dto: UpdatePortfolioProjectDto) {
+    const setFields = Object.fromEntries(
+      Object.entries(dto).map(([key, value]) => [`portfolioProjects.$.${key}`, value]),
+    );
+    const updated = await this.userModel
+      .findOneAndUpdate(
+        { _id: id, 'portfolioProjects._id': projectId },
+        { $set: setFields },
+        { new: true },
+      )
+      .exec();
+    return this.orNotFound(updated, 'User or portfolio project not found');
+  }
+
+  async removePortfolioProject(id: string, projectId: string) {
+    return this.orNotFound(
+      await this.userModel
+        .findByIdAndUpdate(id, { $pull: { portfolioProjects: { _id: projectId } } }, { new: true })
+        .exec(),
+    );
+  }
+
   private orNotFound(user: UserDocument | null, message = 'User not found'): UserDocument {
     if (!user) {
-      throw new NotFoundException({ success: false, statusCode: 404, message, errors: [] });
+      throw new NotFoundException(message);
     }
     return user;
   }
