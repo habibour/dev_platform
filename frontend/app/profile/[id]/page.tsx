@@ -1,54 +1,63 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useQuery } from "@tanstack/react-query";
 import Link from "next/link";
 import { useParams } from "next/navigation";
 import { Pencil } from "lucide-react";
 import { apiFetch, ApiError } from "@/lib/api";
-import type { Profile } from "@/lib/api";
+import type { PublicProfile } from "@/lib/api";
 import { useAuth } from "@/lib/auth-context";
 import { AppShell } from "@/components/AppShell";
+import { cardClass } from "@/lib/form-styles";
 
-function formatDate(value?: string) {
-  if (!value) return "Present";
-  return new Date(value).toLocaleDateString(undefined, { year: "numeric", month: "short" });
+function formatDateRange(startDate: string, endDate: string | undefined, isCurrent: boolean) {
+  const start = new Date(startDate).toLocaleDateString(undefined, {
+    year: "numeric",
+    month: "short",
+  });
+  const end = isCurrent
+    ? "Present"
+    : endDate
+      ? new Date(endDate).toLocaleDateString(undefined, { year: "numeric", month: "short" })
+      : "";
+  return `${start} – ${end}`;
 }
 
 export default function ProfilePage() {
   const { id } = useParams<{ id: string }>();
   const { user: currentUser } = useAuth();
-  const [profile, setProfile] = useState<Profile | null>(null);
-  const [error, setError] = useState<string | null>(null);
-
-  useEffect(() => {
-    apiFetch
-      .get<{ user: Profile }>(`profile/${id}`)
-      .then((data) => setProfile(data.user))
-      .catch((err) => setError(err instanceof ApiError ? err.message : "Failed to load profile"));
-  }, [id]);
-
   const isOwnProfile = currentUser?.id === id;
+
+  const { data, isLoading, isError, error } = useQuery({
+    queryKey: ["profile", id],
+    queryFn: () => apiFetch.get<{ user: PublicProfile }>(`profile/${id}`),
+    enabled: !!id,
+  });
+  const profile = data?.user;
 
   return (
     <AppShell>
       <main className="flex flex-1 justify-center px-4 py-6 sm:px-6">
         <div className="w-full max-w-xl">
-          {error && (
-            <p className="rounded-md bg-like/10 px-3 py-2 text-sm text-like">{error}</p>
+          {isError && (
+            <p className="rounded-md bg-like/10 px-3 py-2 text-sm text-like">
+              {error instanceof ApiError ? error.message : "Failed to load profile"}
+            </p>
           )}
 
-          {!profile && !error && (
-            <div className="rounded-md border border-chrome-200 bg-chrome-0 p-5 text-sm text-chrome-500">
-              Loading profile…
-            </div>
+          {isLoading && (
+            <div className={`${cardClass} text-sm text-chrome-500`}>Loading profile…</div>
           )}
 
           {profile && (
             <div className="flex flex-col gap-4">
-              <div className="flex items-start justify-between rounded-md border border-chrome-200 bg-chrome-0 p-5">
+              <div className={`${cardClass} flex items-start justify-between`}>
                 <div>
                   <h1 className="text-lg font-semibold text-chrome-900">{profile.name}</h1>
-                  <p className="text-sm text-chrome-600">{profile.email}</p>
+                  {isOwnProfile && currentUser && (
+                    <p className="text-sm text-chrome-600">{currentUser.email}</p>
+                  )}
+                  {profile.headline && <p className="text-sm text-chrome-600">{profile.headline}</p>}
                 </div>
                 {isOwnProfile && (
                   <Link
@@ -61,7 +70,14 @@ export default function ProfilePage() {
                 )}
               </div>
 
-              <div className="rounded-md border border-chrome-200 bg-chrome-0 p-5">
+              {profile.bio && (
+                <div className={cardClass}>
+                  <h2 className="text-sm font-semibold text-chrome-900">About</h2>
+                  <p className="mt-2 text-sm text-chrome-700">{profile.bio}</p>
+                </div>
+              )}
+
+              <div className={cardClass}>
                 <h2 className="text-sm font-semibold text-chrome-900">Skills</h2>
                 {profile.skills.length === 0 ? (
                   <p className="mt-2 text-sm text-chrome-500">No skills added yet.</p>
@@ -79,21 +95,47 @@ export default function ProfilePage() {
                 )}
               </div>
 
-              <div className="rounded-md border border-chrome-200 bg-chrome-0 p-5">
-                <h2 className="text-sm font-semibold text-chrome-900">Experience</h2>
-                {profile.experiences.length === 0 ? (
-                  <p className="mt-2 text-sm text-chrome-500">No experience added yet.</p>
+              <div className={cardClass}>
+                <h2 className="text-sm font-semibold text-chrome-900">Portfolio projects</h2>
+                {profile.portfolioProjects.length === 0 ? (
+                  <p className="mt-2 text-sm text-chrome-500">No projects added yet.</p>
                 ) : (
                   <ul className="mt-3 flex flex-col gap-4">
-                    {profile.experiences.map((exp) => (
-                      <li key={exp.id} className="border-l-2 border-brand-100 pl-3">
-                        <p className="text-sm font-medium text-chrome-900">{exp.title}</p>
-                        <p className="text-sm text-chrome-600">{exp.company}</p>
+                    {profile.portfolioProjects.map((project) => (
+                      <li key={project.id} className="border-l-2 border-brand-100 pl-3">
+                        <p className="text-sm font-medium text-chrome-900">{project.title}</p>
                         <p className="text-xs text-chrome-500">
-                          {formatDate(exp.from)} – {formatDate(exp.to)}
+                          {formatDateRange(project.startDate, project.endDate, project.isCurrent)}
                         </p>
-                        {exp.description && (
-                          <p className="mt-1 text-sm text-chrome-700">{exp.description}</p>
+                        {project.description && (
+                          <p className="mt-1 text-sm text-chrome-700">{project.description}</p>
+                        )}
+                        {project.technologies.length > 0 && (
+                          <div className="mt-2 flex flex-wrap gap-2">
+                            {project.technologies.map((tech) => (
+                              <span
+                                key={tech}
+                                className="rounded-full bg-brand-50 px-3 py-1 text-xs font-medium text-brand-700"
+                              >
+                                {tech}
+                              </span>
+                            ))}
+                          </div>
+                        )}
+                        {project.urls.length > 0 && (
+                          <div className="mt-2 flex flex-col gap-1">
+                            {project.urls.map((url) => (
+                              <a
+                                key={url}
+                                href={url}
+                                target="_blank"
+                                rel="noreferrer"
+                                className="text-xs font-medium text-brand-500 hover:underline"
+                              >
+                                {url}
+                              </a>
+                            ))}
+                          </div>
                         )}
                       </li>
                     ))}

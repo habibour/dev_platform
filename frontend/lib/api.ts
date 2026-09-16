@@ -1,19 +1,28 @@
-export type Experience = {
+export type PortfolioProject = {
   id: string;
   title: string;
-  company: string;
-  from: string;
-  to?: string;
   description?: string;
+  urls: string[];
+  technologies: string[];
+  startDate: string;
+  endDate?: string;
+  isCurrent: boolean;
 };
 
-export type Profile = {
+export type PublicProfile = {
   id: string;
   name: string;
+  headline?: string;
+  bio?: string;
+  skills: string[];
+  portfolioProjects: PortfolioProject[];
+};
+
+export type Profile = PublicProfile & {
   email: string;
   role: "admin" | "user";
-  skills: string[];
-  experiences: Experience[];
+  createdAt: string;
+  updatedAt: string;
 };
 
 export class ApiError extends Error {
