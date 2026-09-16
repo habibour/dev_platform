@@ -1,7 +1,10 @@
 import { BadRequestException, ValidationPipe } from '@nestjs/common';
 import type { ValidationError } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
+import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { AppModule } from './app.module.js';
+import { HttpExceptionFilter } from './common/filters/http-exception.filter.js';
+import { TransformInterceptor } from './common/interceptors/transform.interceptor.js';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
@@ -13,8 +16,6 @@ async function bootstrap() {
       transform: true,
       exceptionFactory: (errors: ValidationError[]) =>
         new BadRequestException({
-          success: false,
-          statusCode: 400,
           message: 'Validation failed',
           errors: errors.map((error) => ({
             field: error.property,
@@ -23,6 +24,17 @@ async function bootstrap() {
         }),
     }),
   );
+  app.useGlobalInterceptors(new TransformInterceptor());
+  app.useGlobalFilters(new HttpExceptionFilter());
+
+  const swaggerConfig = new DocumentBuilder()
+    .setTitle('Dev Community API')
+    .setDescription('Success envelope: { success, data, message }. Error envelope: { success, statusCode, message, errors }.')
+    .setVersion('1.0')
+    .build();
+  const swaggerDocument = SwaggerModule.createDocument(app, swaggerConfig);
+  SwaggerModule.setup('api/docs', app, swaggerDocument);
+
   await app.listen(process.env.PORT ?? 4000);
 }
 await bootstrap();

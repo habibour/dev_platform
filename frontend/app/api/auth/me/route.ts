@@ -1,7 +1,6 @@
 import { NextResponse } from "next/server";
+import { BACKEND_URL } from "@/lib/config";
 import { getAuthToken } from "@/lib/cookies";
-
-const BACKEND_URL = process.env.BACKEND_URL ?? "http://localhost:4000";
 
 export async function GET() {
   const token = await getAuthToken();

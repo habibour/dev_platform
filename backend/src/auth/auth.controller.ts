@@ -25,16 +25,14 @@ export class AuthController {
 
   @Post('signup')
   @HttpCode(201)
-  async signup(@Body() dto: SignupDto) {
-    const result = await this.authService.signup(dto);
-    return { success: true, data: result };
+  signup(@Body() dto: SignupDto) {
+    return this.authService.signup(dto);
   }
 
   @Post('login')
   @HttpCode(200)
-  async login(@Body() dto: LoginDto) {
-    const result = await this.authService.login(dto);
-    return { success: true, data: result };
+  login(@Body() dto: LoginDto) {
+    return this.authService.login(dto);
   }
 
   @Get('me')
@@ -42,17 +40,9 @@ export class AuthController {
   async me(@Req() request: Request & { user: RequestUser }) {
     const user = await this.usersService.findById(request.user.userId);
     if (!user) {
-      throw new NotFoundException({
-        success: false,
-        statusCode: 404,
-        message: 'User not found',
-        errors: [],
-      });
+      throw new NotFoundException('User not found');
     }
 
-    return {
-      success: true,
-      data: { user: { id: user.id, name: user.name, email: user.email, role: user.role } },
-    };
+    return { user: { id: user.id, name: user.name, email: user.email, role: user.role } };
   }
 }

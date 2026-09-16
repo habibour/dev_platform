@@ -31,12 +31,7 @@ export class AuthService {
   async signup(dto: SignupDto): Promise<AuthResult> {
     const existing = await this.usersService.findByEmail(dto.email);
     if (existing) {
-      throw new ConflictException({
-        success: false,
-        statusCode: 409,
-        message: 'Email already registered',
-        errors: [],
-      });
+      throw new ConflictException('Email already registered');
     }
 
     const passwordHash = await bcrypt.hash(dto.password, SALT_ROUNDS);
@@ -53,22 +48,12 @@ export class AuthService {
   async login(dto: LoginDto): Promise<AuthResult> {
     const user = await this.usersService.findByEmail(dto.email);
     if (!user) {
-      throw new UnauthorizedException({
-        success: false,
-        statusCode: 401,
-        message: INVALID_CREDENTIALS_MESSAGE,
-        errors: [],
-      });
+      throw new UnauthorizedException(INVALID_CREDENTIALS_MESSAGE);
     }
 
     const passwordMatches = await bcrypt.compare(dto.password, user.passwordHash);
     if (!passwordMatches) {
-      throw new UnauthorizedException({
-        success: false,
-        statusCode: 401,
-        message: INVALID_CREDENTIALS_MESSAGE,
-        errors: [],
-      });
+      throw new UnauthorizedException(INVALID_CREDENTIALS_MESSAGE);
     }
 
     return { accessToken: this.signToken(user), user: this.sanitizeUser(user) };

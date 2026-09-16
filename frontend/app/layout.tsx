@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Geist_Mono, Inter } from "next/font/google";
 import { Header } from "@/components/Header";
 import { AuthProvider } from "@/lib/auth-context";
+import { Providers } from "@/lib/query-client";
 import "./globals.css";
 
 const inter = Inter({
@@ -23,10 +24,12 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html lang="en" className={`${inter.variable} ${geistMono.variable} h-full antialiased`}>
       <body className="min-h-full flex flex-col font-sans">
-        <AuthProvider>
-          <Header />
-          {children}
-        </AuthProvider>
+        <Providers>
+          <AuthProvider>
+            <Header />
+            {children}
+          </AuthProvider>
+        </Providers>
       </body>
     </html>
   );

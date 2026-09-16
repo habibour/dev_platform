@@ -1,15 +1,16 @@
-# CLAUDE.md — Dev Community (Week 1)
+# CLAUDE.md — Dev Community (20-Day Phase Plan)
 
 ## What this is
 
-The submittable repo for the "Agentic Software Engineer" Week 1 assignment: a full-stack developer community (auth, posts, comments, reactions, profiles, ranking). This folder *is* the repo — `backend/`, `frontend/`, `README.md`, and `AI_USAGE.md` are what actually gets pushed to GitHub. `doc/` and the assignment brief also live here for convenience but are gitignored — they're planning material, not part of the submission.
+The submittable repo for the "Agentic Software Engineer" internship: a full-stack developer community (auth, profiles, posts, comments, reactions, ranking, search, AI summarization). This folder *is* the repo — `backend/`, `frontend/`, `README.md`, and `AI_USAGE.md` are what actually gets pushed to GitHub. `doc/` and the assignment brief(s) also live here for convenience but are gitignored — they're planning material, not part of the submission.
 
 Requirements and day-by-day execution steps live in `doc/`, not inside `backend/`/`frontend/`:
-- `doc/specs/week-1/spec.md` — full week contract (stack, conventions, models, rubric)
-- `doc/specs/week-1/day-N/spec.md` — what Day N requires
-- `doc/plans/week-1/plan.md` — week execution approach
-- `doc/plans/week-1/day-N/plan.md` — concrete steps for Day N
-- `doc/specs/design-system.md` — frontend visual design (layout + color palette), applies Day 4 onward
+- `doc/specs/prd.md` — whole-program contract (stack, conventions, models, rubric, mentor checkpoints)
+- `doc/specs/week-1/spec.md` — index into the day-by-day specs (folder still named `week-1` for historical reasons; see the note at its top)
+- `doc/specs/week-1/day-N/spec.md` (N = 1–20) — what Day N requires
+- `doc/plans/week-1/plan.md` — whole-program execution approach across 5 phases
+- `doc/plans/week-1/day-N/plan.md` (N = 1–20) — concrete steps for Day N
+- `doc/specs/design-system.md` — frontend visual design (layout + color palette), applies Day 2 onward
 
 Read the relevant day's spec + plan before implementing it.
 
@@ -35,10 +36,14 @@ This superseded an earlier placeholder palette (`#385a7c`/`#f97171`/`#8ad6cc`/et
 | Layer | Required |
 | :---- | :---- |
 | Backend | **NestJS** (Node.js) |
-| Frontend | **Next.js** (React) |
+| Frontend | **Next.js** (App Router) |
+| Forms & validation | **React Hook Form** + **Zod** |
+| Server state | **TanStack Query** |
 | Database | **MongoDB** with **Mongoose** |
-| API docs | **Swagger / OpenAPI** (NestJS Swagger) by end of week |
+| API docs | **Swagger / OpenAPI** (NestJS Swagger), documented incrementally from Day 2, complete by Day 18 |
 | Auth | JWT access tokens; roles: `admin` \| `user` |
+| Testing | **Jest** (backend services + integration), **React Testing Library** (frontend) — backend currently uses **Vitest** instead of Jest; a known stack deviation, see `doc/specs/week-1/day-17/spec.md` |
+| Containerization | **Docker** (multi-stage builds + Compose, Day 19) |
 
 A sibling project, `../6sense_project/`, is a prior attempt at this same brief that used PostgreSQL+Prisma, Express, and Vite+React instead — a direct violation of the assignment's "do not substitute other frameworks or databases" rule. Do not repeat that deviation here, even if it seems expedient.
 
@@ -52,16 +57,16 @@ A sibling project, `../6sense_project/`, is a prior attempt at this same brief t
 ```json
 { "success": false, "statusCode": 400, "message": "Human-readable error", "errors": [] }
 ```
-Apply these consistently from Day 2 onward — see the Day 7 plan for wiring them globally via an interceptor + exception filter rather than per-controller.
+Applied consistently from Day 2 onward — wired globally via `TransformInterceptor` + `HttpExceptionFilter` (`backend/src/common/`) rather than per-controller; see `doc/plans/week-1/day-2/plan.md`.
 
-**Ranking formula** (implement Day 7): `score = (likes - dislikes) + commentCount * 2`, tie-break `createdAt` descending. Document the actually-implemented formula in `README.md`.
+**Ranking formula** (implement Day 13): `score = (likes - dislikes) + commentCount * 2`, tie-break `createdAt` descending. Document the actually-implemented formula in `README.md`.
 
-**Core models** (`User`, `Post`, `Comment`, `Reaction`) — field lists are in `doc/specs/week-1/spec.md`; don't re-derive them, follow that spec.
+**Core models** (`User`, `Post`, `Comment`, `Reaction`) — field lists are in `doc/specs/prd.md`; don't re-derive them, follow that spec. Note the `User` profile model is mid-migration: currently `skills`+`experiences` in code, target is `headline`/`bio`/`skills`/`portfolioProjects` per Day 5.
 
 ## Working rules
 
 - **Equal effort, backend and frontend, every day.** A day isn't done with only one side touched.
-- **Commit and push through the day**, not one end-of-day dump. `main` must be the final runnable code by Day 7.
+- **Commit and push through the day**, not one end-of-day dump. `main` must stay runnable throughout the 20-day program, with the final release candidate by Day 19 and a tagged `v1.0.0` on Day 20 (only after mentor approval).
 - Never commit `.env` with real secrets — only `.env.example`.
 - **Own every AI-assisted change.** Review it before it lands; when an AI suggestion is wrong, note it in `AI_USAGE.md` the same day, not reconstructed later.
 - Code should be clean and follow SOLID principles — this is part of the evaluation rubric, not a nice-to-have.

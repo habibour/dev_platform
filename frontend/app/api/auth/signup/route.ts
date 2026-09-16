@@ -1,7 +1,6 @@
 import { NextResponse } from "next/server";
+import { BACKEND_URL } from "@/lib/config";
 import { setAuthCookie } from "@/lib/cookies";
-
-const BACKEND_URL = process.env.BACKEND_URL ?? "http://localhost:4000";
 
 export async function POST(request: Request) {
   const body = await request.text();

@@ -1,25 +1,18 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useQuery } from "@tanstack/react-query";
 import { AboutWidget } from "@/components/AboutWidget";
 import { AppShell } from "@/components/AppShell";
+import { apiFetch } from "@/lib/api";
 
-type HealthStatus = "loading" | "connected" | "unreachable";
+type HealthResponse = { api: string; db: string };
 
 export default function Home() {
-  const [status, setStatus] = useState<HealthStatus>("loading");
-
-  useEffect(() => {
-    const apiUrl = process.env.NEXT_PUBLIC_API_URL;
-
-    fetch(`${apiUrl}/health`)
-      .then((res) => {
-        if (!res.ok) throw new Error("Health check failed");
-        return res.json();
-      })
-      .then(() => setStatus("connected"))
-      .catch(() => setStatus("unreachable"));
-  }, []);
+  const { status, refetch, isFetching } = useQuery({
+    queryKey: ["health"],
+    queryFn: () => apiFetch.get<HealthResponse>("health"),
+    retry: 1,
+  });
 
   return (
     <AppShell>
@@ -38,18 +31,28 @@ export default function Home() {
             <div className="mt-4 flex items-center gap-2 text-sm">
               <span
                 className={`h-2 w-2 rounded-full ${
-                  status === "connected"
+                  status === "success"
                     ? "bg-brand-500"
-                    : status === "unreachable"
+                    : status === "error"
                       ? "bg-like"
                       : "bg-chrome-300"
                 }`}
               />
               <span className="text-chrome-600">
-                {status === "loading" && "Checking API connection…"}
-                {status === "connected" && "API connected"}
-                {status === "unreachable" && "API unreachable"}
+                {status === "pending" && "Checking API connection…"}
+                {status === "success" && "API connected"}
+                {status === "error" && "API unreachable"}
               </span>
+              {status === "error" && (
+                <button
+                  type="button"
+                  onClick={() => refetch()}
+                  disabled={isFetching}
+                  className="cursor-pointer rounded-full border border-chrome-200 px-2 py-0.5 text-xs font-medium text-chrome-700 hover:border-brand-500 hover:text-brand-500 disabled:opacity-50"
+                >
+                  {isFetching ? "Retrying…" : "Retry"}
+                </button>
+              )}
             </div>
           </div>
         </main>
